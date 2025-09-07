@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAuthStore } from '../store';
-import { AuthBusinessService } from '../services/auth.service';
+import { useAuthStore } from '@/lib/store';
+import { AuthBusinessService } from '@/lib/services/auth.service';
 import { LoginDto, CreateUserDto } from '@repo/types';
 
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, setUser, setLoading, logout } = useAuthStore();
+  const { user, isAuthenticated, isLoading, setLoading } = useAuthStore();
 
   useEffect(() => {
     // Initialize auth on mount

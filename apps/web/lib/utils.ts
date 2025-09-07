@@ -1,9 +1,9 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 export function formatNumber(num: number): string {
@@ -35,6 +35,17 @@ export function formatDate(date: string | Date, formatStr = 'MMM dd, yyyy'): str
 export function formatRelativeTime(date: string | Date): string {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
   return formatDistanceToNow(dateObj, { addSuffix: true });
+}
+
+export function formatMessageTime(timestamp: string): string {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+  
+  if (diffInMinutes < 1) return 'Just now';
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+  return date.toLocaleDateString();
 }
 
 export function getTrendColor(trend: 'up' | 'down' | 'stable'): string {

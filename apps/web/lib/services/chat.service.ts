@@ -1,13 +1,13 @@
-import { ChatService } from '../api/chat.service';
-import { SendMessageDto, GetChatHistoryDto, ChatMessage, ChatSession } from '@repo/types';
-import { useChatStore } from '../store';
+import { ChatService } from '@/lib/api/chat.service';
+import { SendMessageDto } from '@repo/types';
+import { useChatStore } from '@/lib/store';
 
 export class ChatBusinessService {
   static async sendMessage(data: SendMessageDto) {
     try {
       const response = await ChatService.sendMessage(data);
       
-      if (response.success && response.data) {
+      if (response.success && response.data && data.sessionId) {
         // Add message to store
         useChatStore.getState().addMessage(data.sessionId, response.data);
         return { success: true, message: response.data };
@@ -60,9 +60,9 @@ export class ChatBusinessService {
     }
   }
 
-  static async loadHistory(sessionId: string, limit = 50) {
+  static async loadHistory(sessionId: string, userId: string, limit = 50) {
     try {
-      const response = await ChatService.getHistory({ sessionId, limit });
+      const response = await ChatService.getHistory({ sessionId, userId, limit });
       
       if (response.success && response.data) {
         useChatStore.getState().setMessages(sessionId, response.data);
@@ -105,7 +105,7 @@ export class ChatBusinessService {
     }
   }
 
-  static async switchSession(sessionId: string) {
+  static async switchSession(sessionId: string, userId: string) {
     const { sessions } = useChatStore.getState();
     const session = sessions.find(s => s.id === sessionId);
     
@@ -115,7 +115,7 @@ export class ChatBusinessService {
       // Load messages if not already loaded
       const { messages } = useChatStore.getState();
       if (!messages[sessionId]) {
-        await this.loadHistory(sessionId);
+        await this.loadHistory(sessionId, userId);
       }
       
       return { success: true, session };

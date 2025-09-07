@@ -2,12 +2,20 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useChatStore } from '../store';
-import { useAnalyticsStore } from '../store';
+import { useChatStore } from '@/lib/store';
+import { useAnalyticsStore } from '@/lib/store';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
 
-export function useWebSocket() {
+export function useWebSocket(): {
+  socket: Socket | null;
+  connected: boolean;
+  connect: () => void;
+  disconnect: () => void;
+  emit: (event: string, data?: any) => void;
+  joinRoom: (room: string) => void;
+  leaveRoom: (room: string) => void;
+} {
   const socketRef = useRef<Socket | null>(null);
   const { setConnected } = useChatStore();
   const { addAnalyticsData } = useAnalyticsStore();

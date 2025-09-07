@@ -1,22 +1,18 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useChatStore } from '../store';
-import { ChatBusinessService } from '../services/chat.service';
+import { useChatStore, useAuthStore } from '@/lib/store';
+import { ChatBusinessService } from '@/lib/services/chat.service';
 import { SendMessageDto } from '@repo/types';
 
 export function useChat() {
+  const { user } = useAuthStore();
   const {
     currentSession,
     sessions,
     messages,
     isConnected,
-    setCurrentSession,
-    setSessions,
-    addMessage,
-    setMessages,
     setConnected,
-    clearMessages,
   } = useChatStore();
 
   const loadSessions = useCallback(async () => {
@@ -34,15 +30,18 @@ export function useChat() {
     return result;
   }, []);
 
-  const loadHistory = useCallback(async (sessionId: string, limit?: number) => {
-    const result = await ChatBusinessService.loadHistory(sessionId, limit);
+  const loadHistory = useCallback(async (sessionId: string, userId: string, limit?: number) => {
+    const result = await ChatBusinessService.loadHistory(sessionId, userId, limit);
     return result;
   }, []);
 
   const switchSession = useCallback(async (sessionId: string) => {
-    const result = await ChatBusinessService.switchSession(sessionId);
+    if (!user?.id) {
+      return { success: false, error: 'User not authenticated' };
+    }
+    const result = await ChatBusinessService.switchSession(sessionId, user.id);
     return result;
-  }, []);
+  }, [user?.id]);
 
   const deleteSession = useCallback(async (sessionId: string) => {
     const result = await ChatBusinessService.deleteSession(sessionId);
@@ -74,7 +73,5 @@ export function useChat() {
     deleteSession,
     clearSessionMessages,
     setConnected,
-    // Utility functions
-    formatMessageTime: ChatBusinessService.formatMessageTime,
   };
 }

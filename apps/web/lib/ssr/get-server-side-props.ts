@@ -2,22 +2,22 @@ import { GetServerSidePropsContext } from 'next';
 import { AnalyticsService } from '../api/analytics.service';
 import { ChatService } from '../api/chat.service';
 import { UsersService } from '../api/users.service';
-import { DashboardService } from '../api/dashboard.service';
+import { User, DashboardData, AnalyticsData, ChatSession } from '@repo/types';
 
 export interface ServerSideProps {
-  user?: any;
-  dashboardData?: any;
-  analyticsData?: any[];
-  chatSessions?: any[];
+  user?: User;
+  dashboardData?: DashboardData;
+  analyticsData?: AnalyticsData[];
+  chatSessions?: ChatSession[];
   error?: string;
 }
 
 export async function getServerSidePropsWithAuth(
   context: GetServerSidePropsContext,
   additionalDataFetchers?: {
-    dashboardData?: (userId: string, accessToken: string) => Promise<any>;
-    analyticsData?: (accessToken: string) => Promise<any>;
-    chatSessions?: (accessToken: string) => Promise<any>;
+    dashboardData?: (userId: string, accessToken: string) => Promise<DashboardData>;
+    analyticsData?: (accessToken: string) => Promise<AnalyticsData[]>;
+    chatSessions?: (accessToken: string) => Promise<ChatSession[]>;
   }
 ): Promise<{ props: ServerSideProps }> {
   const { req } = context;
@@ -95,14 +95,14 @@ export async function getServerSidePropsForDashboard(
   return getServerSidePropsWithAuth(context, {
     dashboardData: async (userId: string, accessToken: string) => {
       const response = await AnalyticsService.getDashboardDataSSR(userId, '7d', accessToken);
-      return response.data;
+      return response.data || {} as DashboardData;
     },
     analyticsData: async (accessToken: string) => {
       const response = await AnalyticsService.getMetricsSSR(
         { timeRange: '7d', limit: 100 },
         accessToken
       );
-      return response.data;
+      return response.data || [];
     },
   });
 }
@@ -113,7 +113,7 @@ export async function getServerSidePropsForChat(
   return getServerSidePropsWithAuth(context, {
     chatSessions: async (accessToken: string) => {
       const response = await ChatService.getSessionsSSR(accessToken);
-      return response.data;
+      return response.data || [];
     },
   });
 }

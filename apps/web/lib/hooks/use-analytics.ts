@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useAnalyticsStore } from '../store';
-import { AnalyticsBusinessService } from '../services/analytics.service';
-import { useAuth } from './use-auth';
+import { useAnalyticsStore } from '@/lib/store';
+import { AnalyticsBusinessService } from '@/lib/services/analytics.service';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export function useAnalytics() {
   const { 
@@ -11,10 +11,7 @@ export function useAnalytics() {
     analyticsData, 
     timeRange, 
     isLoading, 
-    setDashboardData, 
-    setAnalyticsData, 
     setTimeRange, 
-    setLoading 
   } = useAnalyticsStore();
   
   const { user } = useAuth();
